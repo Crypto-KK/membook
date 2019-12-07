@@ -27,7 +27,7 @@
         android:layout_toRightOf="@id/list_item_title"
         android:layout_toEndOf="@id/list_item_title"
         android:layout_alignBottom="@id/list_item_title"
-        android:layout_marginLeft="120dp"
+        android:layout_marginLeft="140dp"
         android:textColor="#123"
         android:textSize="14sp"
         android:gravity="start|bottom"

@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import cn.gzcc.membook.R;
+
 import cn.gzcc.membook.db.MyDB;
 import cn.gzcc.membook.entity.Record;
 
@@ -33,18 +33,16 @@ public class CheckTimeReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        //  分钟级改变，触发
+        //  每分钟都触发一遍该方法
         if (Intent.ACTION_TIME_TICK.equals(intent.getAction())) {
             Long temp = System.currentTimeMillis();
-            Log.i(TAG, "onReceive: 提醒~~~~" + temp);
-//            MediaPlayer mMediaPlayer;
-//            mMediaPlayer=MediaPlayer.create(this, R.raw);
-//            mMediaPlayer.start();
+            Log.i(TAG, "每分钟触发一次该监听方法" + temp);
             List<Record> recordList = getData(context);
             Intent newIntent;
             for (Record record : recordList) {
-                // 遍历每一个记录来发送广播
+                // 遍历需要提醒的备忘录并发送广播
                 newIntent = new Intent();
+                // 标记action为ACTION_TIME_TICK
                 newIntent.setAction("ACTION_NEW_REMIND");
                 newIntent.putExtra(MyDB.RECORD_TITLE, record.getTitleName().trim());
                 newIntent.putExtra(MyDB.RECORD_BODY, record.getTextBody().trim());
@@ -57,22 +55,29 @@ public class CheckTimeReceiver extends BroadcastReceiver {
     }
 
     private List<Record> getData(Context context) {
-        // 获取所有数据库的数据
+        // 获取当前时间需要提醒的备忘录列表
         List<Record> recordList = new ArrayList<>();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        // 获取当前系统的时间戳
         Date date = new Date(System.currentTimeMillis());
         try {
+            // 将当前时间转换为字符串型 如：1575717600000
             String param = String.valueOf(dateFormat.parse(dateFormat.format(date)).getTime());
+            // 将参数变为数组 如：[1575717600000]
             String[] strings = new String[]{param};
             myDB = new MyDB(context);
+            // 获取可读的资源
             SQLiteDatabase db = myDB.getReadableDatabase();
+
 
             String sql = "select * from " + MyDB.TABLE_NAME_RECORD + " where " +
                     MyDB.NOTICE_TIME_LONG + "=?";
+            // 相当于 select * from record where notice_time_long=1575717600000
             Cursor cursor = db.rawQuery(sql, strings);
-
+            // 将游标移到开始
             if (cursor.moveToFirst()) {
                 Record record;
+                // 如果还有下一条记录，不断取出放到实体类中
                 while (!cursor.isAfterLast()) {
                     record = new Record();
                     record.setId(
@@ -89,7 +94,7 @@ public class CheckTimeReceiver extends BroadcastReceiver {
                     record.setLongNoticeTime(longNoticeTime);
                     recordList.add(record);
                     cursor.moveToNext();
-//                    Log.i(TAG, "getData: ~~~~~数据库参数" + record.getLongNoticeTime());
+                    // 游标移到下一条记录
                 }
             }
             cursor.close();

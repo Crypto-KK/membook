@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.support.v4.app.NotificationCompat;
 
 
@@ -21,6 +22,7 @@ public class NoticeReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         if ("ACTION_NEW_REMIND".equals(action)){
+
             // 通知栏提醒！
             showNotificationIcon(context,intent);
         }
@@ -29,10 +31,14 @@ public class NoticeReceiver extends BroadcastReceiver {
         String title = intent.getStringExtra(MyDB.RECORD_TITLE);
         String body = intent.getStringExtra(MyDB.RECORD_BODY);
         Integer id = intent.getIntExtra(MyDB.RECORD_ID,NotificationID.getId());
-        Notification.Builder builder = new Notification .Builder(context);
+        Notification.Builder builder = new Notification.Builder(context);
         builder.setAutoCancel(true);//点击后消失
-        builder.setSmallIcon(R.mipmap.baseline_alarm_black_36);//设置通知栏消息标题的头像
-        builder.setDefaults(NotificationCompat.DEFAULT_SOUND);//设置通知铃声
+        builder.setSmallIcon(R.mipmap.baseline_alarm_black_36);//设置通知栏消息标题的图标
+        // 使用MediaPlayer类播放铃声
+        MediaPlayer mMediaPlayer;
+        mMediaPlayer=MediaPlayer.create(context, R.raw.dingdong);
+        mMediaPlayer.start();
+
         builder.setContentText(body);//通知内容
         builder.setContentTitle(title);//通知标题
         Notification notification = builder.build();
